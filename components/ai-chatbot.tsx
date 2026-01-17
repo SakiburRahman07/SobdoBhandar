@@ -62,11 +62,15 @@ export function AIChatbot() {
     setLoading(true)
 
     try {
+      // Only send messages that are actual conversations (exclude initial welcome)
+      const conversationMessages = messages.filter((_, index) => index > 0)
+      const allMessages = [...conversationMessages, { role: 'user' as const, content: userMessage }]
+      
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [...messages, { role: 'user', content: userMessage }]
+          messages: allMessages
         }),
       })
 

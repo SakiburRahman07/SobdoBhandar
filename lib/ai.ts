@@ -7,7 +7,7 @@ function getGeminiClient() {
   if (!geminiClient) {
     const apiKey = process.env.AI_API_KEY
     if (!apiKey) {
-      throw new Error('AI_API_KEY is not set in environment variables')
+      return null
     }
     geminiClient = new GoogleGenerativeAI(apiKey)
   }
@@ -55,29 +55,99 @@ Examples:
 export async function chat(messages: { role: 'user' | 'assistant'; content: string }[]) {
   try {
     const genAI = getGeminiClient()
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-
-    // Convert messages to Gemini format
-    const history = messages.slice(0, -1).map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
-    }))
-
-    const lastMessage = messages[messages.length - 1]
-
-    const chat = model.startChat({
-      history: history.length > 0 ? history : undefined,
+    
+    // If no API key configured, return a helpful fallback
+    if (!genAI) {
+      return getFallbackResponse(messages[messages.length - 1]?.content || '')
+    }
+    
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
       systemInstruction: SYSTEM_PROMPT,
     })
 
-    const result = await chat.sendMessage(lastMessage.content)
-    const response = result.response.text()
+    // Filter to only include actual conversation messages
+    const validMessages = messages.filter(msg => msg.role === 'user' || msg.role === 'assistant')
+    
+    // Find the first user message
+    const firstUserIndex = validMessages.findIndex(msg => msg.role === 'user')
+    
+    if (firstUserIndex === -1) {
+      return 'আপনাকে কিভাবে সাহায্য করতে পারি?'
+    }
 
-    return response || 'দুঃখিত, উত্তর দিতে পারছি না।'
-  } catch (error) {
+    // Get messages starting from first user message
+    const chatMessages = validMessages.slice(firstUserIndex)
+    
+    // Simple single message
+    if (chatMessages.length === 1) {
+      const result = await model.generateContent(chatMessages[0].content)
+      return result.response.text() || 'দুঃখিত, উত্তর দিতে পারছি না।'
+    }
+
+    // Build history for multi-turn conversation
+    const history = chatMessages.slice(0, -1).map(msg => ({
+      role: msg.role === 'user' ? 'user' as const : 'model' as const,
+      parts: [{ text: msg.content }]
+    }))
+
+    const lastMessage = chatMessages[chatMessages.length - 1]
+
+    const chatSession = model.startChat({ history })
+    const result = await chatSession.sendMessage(lastMessage.content)
+
+    return result.response.text() || 'দুঃখিত, উত্তর দিতে পারছি না।'
+    
+  } catch (error: unknown) {
     console.error('AI Chat Error:', error)
-    throw error
+    
+    // Handle rate limit errors gracefully
+    if (error && typeof error === 'object' && 'status' in error) {
+      const statusError = error as { status: number }
+      if (statusError.status === 429) {
+        return 'দুঃখিত, এই মুহূর্তে AI সার্ভার ব্যস্ত। কিছুক্ষণ পর আবার চেষ্টা করুন। 🙏'
+      }
+    }
+    
+    // Return fallback for any error
+    const lastContent = messages[messages.length - 1]?.content || ''
+    return getFallbackResponse(lastContent)
   }
+}
+
+// Fallback responses when AI is unavailable
+function getFallbackResponse(userMessage: string): string {
+  const lowerMsg = userMessage.toLowerCase()
+  
+  // Navigation requests
+  if (lowerMsg.includes('dashboard') || lowerMsg.includes('ড্যাশবোর্ড')) {
+    return 'আপনাকে ড্যাশবোর্ডে নিয়ে যাচ্ছি! {"navigate": "/dashboard"}'
+  }
+  if (lowerMsg.includes('learn') || lowerMsg.includes('শিখ') || lowerMsg.includes('শেখ')) {
+    return 'চলুন শেখা শুরু করি! {"navigate": "/learn"}'
+  }
+  if (lowerMsg.includes('word') || lowerMsg.includes('শব্দ')) {
+    return 'আপনার শব্দ তালিকা দেখাচ্ছি! {"navigate": "/words"}'
+  }
+  if (lowerMsg.includes('progress') || lowerMsg.includes('অগ্রগতি')) {
+    return 'আপনার অগ্রগতি দেখাচ্ছি! {"navigate": "/progress"}'
+  }
+  if (lowerMsg.includes('profile') || lowerMsg.includes('প্রোফাইল')) {
+    return 'প্রোফাইল পেজে যাচ্ছি! {"navigate": "/profile"}'
+  }
+  if (lowerMsg.includes('leaderboard') || lowerMsg.includes('র‍্যাংক')) {
+    return 'লিডারবোর্ড দেখাচ্ছি! {"navigate": "/leaderboard"}'
+  }
+  
+  // Default helpful response
+  return `আমি শব্দভাণ্ডারের সহকারী! 📚
+
+আমি আপনাকে সাহায্য করতে পারি:
+• **শিখুন** - ফ্ল্যাশকার্ড দিয়ে শব্দ শিখতে
+• **শব্দ যোগ করুন** - নতুন vocabulary যোগ করতে
+• **অগ্রগতি দেখুন** - আপনার progress দেখতে
+
+কোথায় যেতে চান বলুন!`
 }
 
 export function extractNavigation(response: string): string | null {
