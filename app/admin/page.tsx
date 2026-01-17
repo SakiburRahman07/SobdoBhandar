@@ -187,61 +187,102 @@ export default function AdminPage() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
       </div>
 
-      {/* Header */}
-      <header className="border-b border-white/10 bg-background/80 backdrop-blur-lg">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-          <Shield className="w-8 h-8 text-red-400" />
-          <h1 className="text-2xl font-bold">অ্যাডমিন প্যানেল</h1>
+      {/* Enhanced Header */}
+      <header className="relative border-b border-white/10 bg-gradient-to-r from-red-900/30 via-orange-900/20 to-purple-900/30 backdrop-blur-lg overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-orange-500/10" />
+        <div className="container mx-auto px-4 py-6 relative z-10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/30">
+                <Shield className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">অ্যাডমিন প্যানেল</h1>
+                <p className="text-sm text-muted-foreground">শব্দভাণ্ডার ম্যানেজমেন্ট</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-white/20 hover:bg-white/10"
+                onClick={() => window.location.reload()}
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                রিফ্রেশ
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-white/20 hover:bg-white/10"
+                onClick={() => router.push('/dashboard')}
+              >
+                ড্যাশবোর্ডে ফিরুন
+              </Button>
+            </div>
+          </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Stats */}
+        {/* Enhanced Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="glass-card border-white/10">
-            <CardContent className="pt-6">
+          <Card className="relative overflow-hidden border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 hover:scale-[1.02] transition-all duration-300">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/20 rounded-full blur-2xl" />
+            <CardContent className="pt-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">মোট ব্যবহারকারী</p>
-                  <p className="text-3xl font-bold">{stats.totalUsers}</p>
+                  <p className="text-3xl font-bold text-indigo-300">{stats.totalUsers}</p>
                 </div>
-                <Users className="w-8 h-8 text-indigo-400" />
+                <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-indigo-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-card border-white/10">
-            <CardContent className="pt-6">
+          <Card className="relative overflow-hidden border-green-500/20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 hover:scale-[1.02] transition-all duration-300">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/20 rounded-full blur-2xl" />
+            <CardContent className="pt-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">মোট শব্দ</p>
-                  <p className="text-3xl font-bold">{stats.totalWords}</p>
+                  <p className="text-3xl font-bold text-green-300">{stats.totalWords}</p>
                 </div>
-                <BookOpen className="w-8 h-8 text-green-400" />
+                <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-green-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-card border-white/10">
-            <CardContent className="pt-6">
+          <Card className="relative overflow-hidden border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-pink-500/10 hover:scale-[1.02] transition-all duration-300">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/20 rounded-full blur-2xl" />
+            <CardContent className="pt-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">মোট পরামর্শ</p>
-                  <p className="text-3xl font-bold">{stats.totalSuggestions}</p>
+                  <p className="text-3xl font-bold text-purple-300">{stats.totalSuggestions}</p>
                 </div>
-                <MessageSquare className="w-8 h-8 text-purple-400" />
+                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                  <MessageSquare className="w-6 h-6 text-purple-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-card border-white/10">
-            <CardContent className="pt-6">
+          <Card className="relative overflow-hidden border-yellow-500/20 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 hover:scale-[1.02] transition-all duration-300">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/20 rounded-full blur-2xl" />
+            <CardContent className="pt-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">অপেক্ষমান</p>
-                  <p className="text-3xl font-bold text-yellow-400">{stats.pendingSuggestions}</p>
+                  <p className="text-3xl font-bold text-yellow-300">{stats.pendingSuggestions}</p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-400" />
+                <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center animate-pulse">
+                  <Clock className="w-6 h-6 text-yellow-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -259,16 +300,36 @@ export default function AdminPage() {
             {suggestions.length > 0 ? (
               <div className="space-y-4">
                 {suggestions.map((suggestion) => (
-                  <div key={suggestion.id} className="p-4 rounded-lg bg-white/5 border border-white/10">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h4 className="font-semibold">{suggestion.title}</h4>
-                        <Badge variant="outline" className="mt-1 text-xs">
-                          {suggestion.category}
-                        </Badge>
+                  <div key={suggestion.id} className="relative p-5 rounded-xl bg-gradient-to-r from-white/5 to-white/[0.02] border border-white/10 hover:border-white/20 transition-all duration-300">
+                    {/* Status indicator line */}
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${
+                      suggestion.status === 'pending' ? 'bg-yellow-500' :
+                      suggestion.status === 'reviewed' ? 'bg-blue-500' :
+                      suggestion.status === 'implemented' ? 'bg-green-500' :
+                      'bg-red-500'
+                    }`} />
+                    
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-lg">{suggestion.title}</h4>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge variant="outline" className="text-xs bg-purple-500/10 border-purple-500/30 text-purple-300">
+                            {suggestion.category}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(suggestion.created_at).toLocaleDateString('bn-BD', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}
+                          </span>
+                        </div>
                       </div>
-                      <Badge variant="outline" className={getStatusColor(suggestion.status)}>
-                        {suggestion.status}
+                      <Badge variant="outline" className={`${getStatusColor(suggestion.status)} font-medium`}>
+                        {suggestion.status === 'pending' ? '⏳ অপেক্ষমান' :
+                         suggestion.status === 'reviewed' ? '👀 পর্যালোচিত' :
+                         suggestion.status === 'implemented' ? '✅ বাস্তবায়িত' :
+                         '❌ প্রত্যাখ্যাত'}
                       </Badge>
                     </div>
                     
