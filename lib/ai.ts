@@ -56,52 +56,42 @@ export async function chat(messages: { role: 'user' | 'assistant'; content: stri
   try {
     const genAI = getGeminiClient()
     
-    // If no API key configured, return a helpful fallback
     if (!genAI) {
       return getFallbackResponse(messages[messages.length - 1]?.content || '')
     }
     
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       systemInstruction: SYSTEM_PROMPT,
     })
 
-    // Filter to only include actual conversation messages
     const validMessages = messages.filter(msg => msg.role === 'user' || msg.role === 'assistant')
-    
-    // Find the first user message
     const firstUserIndex = validMessages.findIndex(msg => msg.role === 'user')
     
     if (firstUserIndex === -1) {
       return 'আপনাকে কিভাবে সাহায্য করতে পারি?'
     }
 
-    // Get messages starting from first user message
     const chatMessages = validMessages.slice(firstUserIndex)
     
-    // Simple single message
     if (chatMessages.length === 1) {
       const result = await model.generateContent(chatMessages[0].content)
       return result.response.text() || 'দুঃখিত, উত্তর দিতে পারছি না।'
     }
 
-    // Build history for multi-turn conversation
     const history = chatMessages.slice(0, -1).map(msg => ({
       role: msg.role === 'user' ? 'user' as const : 'model' as const,
       parts: [{ text: msg.content }]
     }))
 
-    const lastMessage = chatMessages[chatMessages.length - 1]
-
     const chatSession = model.startChat({ history })
-    const result = await chatSession.sendMessage(lastMessage.content)
+    const result = await chatSession.sendMessage(chatMessages[chatMessages.length - 1].content)
 
     return result.response.text() || 'দুঃখিত, উত্তর দিতে পারছি না।'
     
   } catch (error: unknown) {
     console.error('AI Chat Error:', error)
     
-    // Handle rate limit errors gracefully
     if (error && typeof error === 'object' && 'status' in error) {
       const statusError = error as { status: number }
       if (statusError.status === 429) {
@@ -109,17 +99,13 @@ export async function chat(messages: { role: 'user' | 'assistant'; content: stri
       }
     }
     
-    // Return fallback for any error
-    const lastContent = messages[messages.length - 1]?.content || ''
-    return getFallbackResponse(lastContent)
+    return getFallbackResponse(messages[messages.length - 1]?.content || '')
   }
 }
 
-// Fallback responses when AI is unavailable
 function getFallbackResponse(userMessage: string): string {
   const lowerMsg = userMessage.toLowerCase()
   
-  // Navigation requests
   if (lowerMsg.includes('dashboard') || lowerMsg.includes('ড্যাশবোর্ড')) {
     return 'আপনাকে ড্যাশবোর্ডে নিয়ে যাচ্ছি! {"navigate": "/dashboard"}'
   }
@@ -139,7 +125,6 @@ function getFallbackResponse(userMessage: string): string {
     return 'লিডারবোর্ড দেখাচ্ছি! {"navigate": "/leaderboard"}'
   }
   
-  // Default helpful response
   return `আমি শব্দভাণ্ডারের সহকারী! 📚
 
 আমি আপনাকে সাহায্য করতে পারি:
