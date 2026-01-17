@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS daily_progress (
 -- User Profiles (extended user info)
 CREATE TABLE IF NOT EXISTS user_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT,
   display_name TEXT,
   avatar_url TEXT,
   bio TEXT,
