@@ -201,6 +201,150 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Detailed How-To Guide Section */}
+      <section className="relative z-10 container mx-auto px-4 py-20">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+            কিভাবে <span className="gradient-text">ব্যবহার করবেন</span>?
+          </h2>
+          <p className="text-center text-muted-foreground mb-12">How to Use শব্দভাণ্ডার</p>
+
+          {/* What is Spaced Repetition */}
+          <Card className="glass-card border-white/10 mb-8">
+            <CardContent className="py-8">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                  <Brain className="w-7 h-7 text-indigo-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-3">Spaced Repetition কি? (ব্যবধানমূলক পুনরাবৃত্তি)</h3>
+                  <div className="space-y-3 text-muted-foreground">
+                    <p>
+                      <strong className="text-white">বাংলা:</strong> Spaced Repetition হলো একটি বৈজ্ঞানিক পদ্ধতি যেখানে আপনি একটি তথ্য ভুলে যাওয়ার ঠিক আগে সেটি পুনরায় দেখেন। এতে আপনার মস্তিষ্ক সেই তথ্যকে গুরুত্বপূর্ণ মনে করে দীর্ঘমেয়াদী স্মৃতিতে সংরক্ষণ করে।
+                    </p>
+                    <p>
+                      <strong className="text-white">English:</strong> Spaced Repetition is a scientifically proven learning technique where you review information just before you're about to forget it. This tells your brain that the information is important, moving it to long-term memory.
+                    </p>
+                    <div className="bg-white/5 rounded-lg p-4 mt-4">
+                      <p className="text-sm">
+                        <strong className="text-indigo-400">উদাহরণ:</strong> আজ একটি শব্দ শিখলে, কাল আবার দেখাবে। সঠিক মনে করলে ৩ দিন পর, তারপর ১ সপ্তাহ পর, তারপর ২ সপ্তাহ পর... এভাবে বিরতি বাড়তে থাকে।
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* What is Active Recall */}
+          <Card className="glass-card border-white/10 mb-8">
+            <CardContent className="py-8">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 bg-green-500/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                  <Target className="w-7 h-7 text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-3">Active Recall কি? (সক্রিয় স্মরণ)</h3>
+                  <div className="space-y-3 text-muted-foreground">
+                    <p>
+                      <strong className="text-white">বাংলা:</strong> Active Recall হলো সক্রিয়ভাবে কিছু মনে করার চেষ্টা করা, শুধু পড়া নয়। যখন আপনি একটি শব্দ দেখে তার অর্থ মনে করার চেষ্টা করেন, তখন আপনার মস্তিষ্কের নিউরন সংযোগ শক্তিশালী হয়।
+                    </p>
+                    <p>
+                      <strong className="text-white">English:</strong> Active Recall means actively trying to remember something, rather than just passively reading it. When you see a word and try to remember its meaning, your brain's neural connections become stronger.
+                    </p>
+                    <div className="bg-white/5 rounded-lg p-4 mt-4">
+                      <p className="text-sm">
+                        <strong className="text-green-400">কিভাবে কাজ করে:</strong> ফ্ল্যাশকার্ডে ইংরেজি শব্দ দেখুন → বাংলা অর্থ মনে করার চেষ্টা করুন → কার্ড উল্টে সঠিক উত্তর দেখুন
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Website Sections Guide */}
+          <Card className="glass-card border-white/10 mb-8">
+            <CardContent className="py-8">
+              <h3 className="text-xl font-bold mb-6 text-center">ওয়েবসাইটের বিভাগগুলো / Website Sections</h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="p-4 bg-white/5 rounded-lg">
+                    <h4 className="font-semibold text-indigo-400 mb-2">📊 ড্যাশবোর্ড (Dashboard)</h4>
+                    <p className="text-sm text-muted-foreground">আপনার সামগ্রিক অগ্রগতি দেখুন - মোট শব্দ, স্ট্রিক, এবং আজকের জন্য পড়ার শব্দ সংখ্যা।</p>
+                    <p className="text-xs text-muted-foreground mt-1">View your overall progress - total words, streak, and today's due words.</p>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-lg">
+                    <h4 className="font-semibold text-green-400 mb-2">📖 শিখুন (Learn)</h4>
+                    <p className="text-sm text-muted-foreground">ফ্ল্যাশকার্ড দিয়ে শব্দ অনুশীলন করুন। কার্ড উল্টে বাংলা অর্থ দেখুন এবং "জানি" বা "জানি না" চাপুন।</p>
+                    <p className="text-xs text-muted-foreground mt-1">Practice with flashcards. Flip to see meaning, then press "Know" or "Don't Know".</p>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-lg">
+                    <h4 className="font-semibold text-purple-400 mb-2">📚 শব্দ তালিকা (Word List)</h4>
+                    <p className="text-sm text-muted-foreground">আপনার সব শব্দ দেখুন, সম্পাদনা করুন, বা মুছুন। নতুন শব্দ যোগ করতে এখানে আসুন।</p>
+                    <p className="text-xs text-muted-foreground mt-1">View, edit, or delete all your words. Add new words here.</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="p-4 bg-white/5 rounded-lg">
+                    <h4 className="font-semibold text-orange-400 mb-2">📈 অগ্রগতি (Progress)</h4>
+                    <p className="text-sm text-muted-foreground">আপনার শেখার পরিসংখ্যান দেখুন - কতটি শব্দ সহজ, মাঝারি, বা কঠিন।</p>
+                    <p className="text-xs text-muted-foreground mt-1">View learning statistics - how many words are easy, medium, or hard.</p>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-lg">
+                    <h4 className="font-semibold text-yellow-400 mb-2">🏆 লিডারবোর্ড (Leaderboard)</h4>
+                    <p className="text-sm text-muted-foreground">অন্যান্য শিক্ষার্থীদের সাথে প্রতিযোগিতা করুন। সবচেয়ে বেশি শব্দ শেখা ব্যক্তিদের র‍্যাংকিং দেখুন।</p>
+                    <p className="text-xs text-muted-foreground mt-1">Compete with others. See rankings of top vocabulary learners.</p>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-lg">
+                    <h4 className="font-semibold text-cyan-400 mb-2">🤖 AI চ্যাটবট (AI Chatbot)</h4>
+                    <p className="text-sm text-muted-foreground">যেকোনো শব্দের অর্থ, ব্যবহার, বা ব্যাকরণ সম্পর্কে AI কে জিজ্ঞেস করুন।</p>
+                    <p className="text-xs text-muted-foreground mt-1">Ask AI about any word's meaning, usage, or grammar.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Step by Step Usage */}
+          <Card className="glass-card border-white/10">
+            <CardContent className="py-8">
+              <h3 className="text-xl font-bold mb-6 text-center">ধাপে ধাপে ব্যবহার / Step-by-Step Guide</h3>
+              <div className="space-y-4">
+                <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-indigo-500/10 to-transparent rounded-lg">
+                  <span className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">১</span>
+                  <div>
+                    <h4 className="font-semibold">একাউন্ট তৈরি করুন / Create Account</h4>
+                    <p className="text-sm text-muted-foreground">"শুরু করুন" বাটনে ক্লিক করে ইমেইল ও পাসওয়ার্ড দিয়ে রেজিস্ট্রেশন করুন।</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-green-500/10 to-transparent rounded-lg">
+                  <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">২</span>
+                  <div>
+                    <h4 className="font-semibold">নতুন শব্দ যোগ করুন / Add New Words</h4>
+                    <p className="text-sm text-muted-foreground">"শব্দ তালিকা" → "নতুন শব্দ যোগ করুন" এ গিয়ে ইংরেজি শব্দ লিখুন। AI স্বয়ংক্রিয়ভাবে বাংলা অর্থ, উচ্চারণ ও উদাহরণ তৈরি করবে।</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-orange-500/10 to-transparent rounded-lg">
+                  <span className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">৩</span>
+                  <div>
+                    <h4 className="font-semibold">প্রতিদিন অনুশীলন করুন / Practice Daily</h4>
+                    <p className="text-sm text-muted-foreground">"শিখুন" পেজে গিয়ে আজকের জন্য নির্ধারিত শব্দগুলো ফ্ল্যাশকার্ড দিয়ে অনুশীলন করুন। প্রতিদিন ১৫-২০ মিনিট যথেষ্ট।</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg">
+                  <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">৪</span>
+                  <div>
+                    <h4 className="font-semibold">স্ট্রিক বজায় রাখুন / Maintain Streak</h4>
+                    <p className="text-sm text-muted-foreground">প্রতিদিন অন্তত একটি শব্দ পড়ুন। ধারাবাহিকতা আপনার শেখাকে আরও কার্যকর করে।</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="relative z-10 container mx-auto px-4 py-20">
         <Card className="glass-card border-white/10 overflow-hidden">
