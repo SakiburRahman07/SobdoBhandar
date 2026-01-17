@@ -156,10 +156,8 @@ CREATE POLICY "Admins can update suggestions" ON suggestions FOR UPDATE USING (
   EXISTS (SELECT 1 FROM admins WHERE admins.user_id = auth.uid())
 );
 
--- Admins policies
-CREATE POLICY "Admins can view admin list" ON admins FOR SELECT USING (
-  EXISTS (SELECT 1 FROM admins WHERE admins.user_id = auth.uid())
-);
+-- Admins policies (users can check if they are admin)
+CREATE POLICY "Users can check own admin status" ON admins FOR SELECT USING (auth.uid() = user_id);
 
 -- =============================================
 -- FUNCTIONS

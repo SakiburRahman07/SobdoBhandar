@@ -43,11 +43,14 @@ export default function ProfilePage() {
   const [bio, setBio] = useState('')
   const [targetWords, setTargetWords] = useState(10)
   
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const supabase = createClient()
   const router = useRouter()
 
   useEffect(() => {
+    // Wait for auth to load
+    if (authLoading) return
+
     if (!user) {
       router.push('/login')
       return
@@ -84,7 +87,7 @@ export default function ProfilePage() {
     }
 
     fetchProfile()
-  }, [user, supabase, router])
+  }, [user, authLoading, supabase, router])
 
   const handleSave = async () => {
     if (!user) return

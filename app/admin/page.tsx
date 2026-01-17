@@ -53,32 +53,55 @@ export default function AdminPage() {
   const [stats, setStats] = useState<Stats>({ totalUsers: 0, totalWords: 0, totalSuggestions: 0, pendingSuggestions: 0 })
   const [responseText, setResponseText] = useState<{ [key: string]: string }>({})
   
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const supabase = createClient()
   const router = useRouter()
 
   useEffect(() => {
+    // Wait for auth to load
+    if (authLoading) return
+
     if (!user) {
       router.push('/login')
       return
     }
 
     const checkAdmin = async () => {
-      const { data } = await supabase
-        .from('admins')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .single()
+      try {
+        const { data, error } = await supabase
+          .from('admins')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .single()
 
-      if (!data) {
-        toast.error('আপনি অ্যাডমিন নন')
-        router.push('/dashboard')
-        return
+        console.log('Admin check:', { userId: user.id, data, error })
+
+        if (error) {
+          console.error('Admin check error:', error)
+          if (error.code === 'PGRST116') {
+            toast.error('আপনি অ্যাডমিন নন')
+            router.push('/dashboard')
+            return
+          }
+          toast.error('অ্যাডমিন চেক করতে সমস্যা হয়েছে')
+          setLoading(false)
+          return
+        }
+
+        if (!data) {
+          toast.error('আপনি অ্যাডমিন নন')
+          router.push('/dashboard')
+          return
+        }
+
+        setIsAdmin(true)
+        await fetchData()
+        setLoading(false)
+      } catch (err) {
+        console.error('Admin check failed:', err)
+        toast.error('সার্ভার এরর হয়েছে')
+        setLoading(false)
       }
-
-      setIsAdmin(true)
-      await fetchData()
-      setLoading(false)
     }
 
     const fetchData = async () => {
@@ -110,7 +133,7 @@ export default function AdminPage() {
     }
 
     checkAdmin()
-  }, [user, supabase, router])
+  }, [user, authLoading, supabase, router])
 
   const updateStatus = async (id: string, status: string) => {
     const response = responseText[id] || null

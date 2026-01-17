@@ -50,11 +50,14 @@ export default function SuggestPage() {
   const [mySuggestions, setMySuggestions] = useState<Suggestion[]>([])
   const [loading, setLoading] = useState(true)
   
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const supabase = createClient()
   const router = useRouter()
 
   useEffect(() => {
+    // Wait for auth to load
+    if (authLoading) return
+
     if (!user) {
       router.push('/login')
       return
@@ -72,7 +75,7 @@ export default function SuggestPage() {
     }
 
     fetchSuggestions()
-  }, [user, supabase, router])
+  }, [user, authLoading, supabase, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
