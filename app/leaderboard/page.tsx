@@ -134,13 +134,13 @@ export default function LeaderboardPage() {
       </div>
 
       <main className="container mx-auto px-4 py-8 max-w-3xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <Trophy className="w-10 h-10 text-yellow-400" />
-            <h1 className="text-3xl font-bold">লিডারবোর্ড</h1>
+        {/* Header with Trophy Image */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
+          <img src="/images/trophy.png" alt="Trophy" className="w-32 h-32 rounded-2xl shadow-lg shadow-yellow-500/20" />
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl font-bold mb-2">লিডারবোর্ড</h1>
+            <p className="text-muted-foreground">সেরা শিক্ষার্থীদের র‍্যাংকিং</p>
           </div>
-          <p className="text-muted-foreground">সেরা শিক্ষার্থীদের র‍্যাংকিং</p>
         </div>
 
         {/* User's Rank (if not in top 3) */}

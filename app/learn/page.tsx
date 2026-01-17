@@ -193,9 +193,7 @@ export default function LearnPage() {
         <div className="container mx-auto px-4 py-16">
           <Card className="max-w-md mx-auto glass-card border-white/10 text-center">
             <CardContent className="pt-12 pb-8">
-              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Trophy className="w-10 h-10 text-green-400" />
-              </div>
+              <img src="/images/mascot.png" alt="Mascot" className="w-32 h-32 mx-auto mb-6 rounded-2xl" />
               <h2 className="text-2xl font-bold mb-2">অভিনন্দন! 🎉</h2>
               <p className="text-muted-foreground mb-6">
                 আজকের জন্য পড়ার কোন শব্দ নেই! নতুন শব্দ যোগ করুন বা পরে আবার আসুন।

@@ -60,34 +60,47 @@ export default async function Home() {
 
       {/* Hero Section */}
       <section className="relative z-10 container mx-auto px-4 py-20 md:py-32">
-        <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-8">
-            <Sparkles className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm text-muted-foreground">বৈজ্ঞানিক পদ্ধতিতে শব্দ মনে রাখুন</span>
+        <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+          <div className="text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-8">
+              <Sparkles className="w-4 h-4 text-yellow-400" />
+              <span className="text-sm text-muted-foreground">বৈজ্ঞানিক পদ্ধতিতে শব্দ মনে রাখুন</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
+              <span className="gradient-text">ইংরেজি শব্দ</span>
+              <br />
+              <span className="text-white">সহজে শিখুন</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl">
+              Spaced Repetition এবং Active Recall পদ্ধতি ব্যবহার করে ইংরেজি থেকে বাংলা শব্দ চিরস্থায়ীভাবে মনে রাখুন।
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Link href="/signup">
+                <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-lg px-8 shadow-lg shadow-indigo-500/30">
+                  বিনামূল্যে শুরু করুন
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button size="lg" variant="outline" className="text-lg px-8 border-white/20 hover:bg-white/5">
+                  একাউন্ট আছে? লগইন করুন
+                </Button>
+              </Link>
+            </div>
           </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
-            <span className="gradient-text">ইংরেজি শব্দ</span>
-            <br />
-            <span className="text-white">সহজে শিখুন</span>
-          </h1>
-          
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Spaced Repetition এবং Active Recall পদ্ধতি ব্যবহার করে ইংরেজি থেকে বাংলা শব্দ চিরস্থায়ীভাবে মনে রাখুন।
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup">
-              <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-lg px-8 shadow-lg shadow-indigo-500/30">
-                বিনামূল্যে শুরু করুন
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button size="lg" variant="outline" className="text-lg px-8 border-white/20 hover:bg-white/5">
-                একাউন্ট আছে? লগইন করুন
-              </Button>
-            </Link>
+          {/* Hero Illustration */}
+          <div className="hidden lg:block">
+            <Image 
+              src="/images/hero.png" 
+              alt="বাংলা শব্দ শিখুন" 
+              width={500} 
+              height={500}
+              className="w-full max-w-lg mx-auto rounded-3xl shadow-2xl shadow-indigo-500/20"
+            />
           </div>
         </div>
       </section>

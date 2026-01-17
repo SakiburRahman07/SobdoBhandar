@@ -70,13 +70,13 @@ export default function SignupPage() {
       </div>
 
       <Card className="w-full max-w-md glass-card border-white/10 relative z-10">
-        <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/30">
-            <BookOpen className="w-8 h-8 text-white" />
+        <CardHeader className="text-center space-y-4 pb-2">
+          <div className="mx-auto">
+            <img src="/logo.png" alt="শব্দভাণ্ডার" className="w-20 h-20 mx-auto rounded-2xl shadow-lg shadow-green-500/30" />
           </div>
           <div>
-            <CardTitle className="text-2xl gradient-text font-bold">নতুন একাউন্ট তৈরি করুন</CardTitle>
-            <CardDescription className="text-muted-foreground mt-2">
+            <CardTitle className="text-3xl gradient-text font-bold font-bangla">নতুন একাউন্ট তৈরি করুন</CardTitle>
+            <CardDescription className="text-muted-foreground mt-2 font-bangla">
               শব্দভাণ্ডার দিয়ে ইংরেজি শব্দ শেখা শুরু করুন
             </CardDescription>
           </div>

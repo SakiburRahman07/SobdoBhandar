@@ -136,12 +136,12 @@ export default function SuggestPage() {
       </div>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <Lightbulb className="w-10 h-10 text-yellow-400" />
-            <h1 className="text-3xl font-bold">মতামত ও পরামর্শ</h1>
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
+          <img src="/images/lightbulb.png" alt="Ideas" className="w-32 h-32 rounded-2xl shadow-lg shadow-yellow-500/20" />
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl font-bold mb-2">মতামত ও পরামর্শ</h1>
+            <p className="text-muted-foreground">শব্দভাণ্ডার আরও ভালো করতে আপনার মতামত দিন</p>
           </div>
-          <p className="text-muted-foreground">শব্দভাণ্ডার আরও ভালো করতে আপনার মতামত দিন</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">

@@ -19,7 +19,8 @@ import {
   BarChart3, 
   User, 
   LogOut,
-  Menu
+  Menu,
+  Lightbulb
 } from 'lucide-react'
 
 const navItems = [
@@ -28,6 +29,7 @@ const navItems = [
   { href: '/words', label: 'শব্দ তালিকা', icon: ListPlus },
   { href: '/progress', label: 'অগ্রগতি', icon: BarChart3 },
   { href: '/leaderboard', label: 'র‍্যাংকিং', icon: BarChart3 },
+  { href: '/suggest', label: 'পরামর্শ দিন', icon: Lightbulb },
 ]
 
 export function Navbar() {

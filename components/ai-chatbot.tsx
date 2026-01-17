@@ -119,10 +119,10 @@ export function AIChatbot() {
         <Button
           size="lg"
           onClick={() => setIsOpen(!isOpen)}
-          className={`rounded-full w-14 h-14 shadow-lg ${
+          className={`rounded-full w-16 h-16 p-0 shadow-lg shadow-indigo-500/30 overflow-hidden ${
             isOpen 
               ? 'bg-red-500 hover:bg-red-600' 
-              : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700'
+              : 'bg-transparent border-2 border-indigo-500/50 hover:border-indigo-400'
           }`}
         >
           <AnimatePresence mode="wait">
@@ -141,10 +141,9 @@ export function AIChatbot() {
                 initial={{ rotate: -90, opacity: 0 }}
                 animate={{ rotate: 0, opacity: 1 }}
                 exit={{ rotate: 90, opacity: 0 }}
-                className="relative"
+                className="w-full h-full"
               >
-                <MessageCircle className="w-6 h-6" />
-                <Sparkles className="w-3 h-3 absolute -top-1 -right-1 text-yellow-300" />
+                <img src="/chatbot-icon.png" alt="AI" className="w-full h-full object-cover" />
               </motion.div>
             )}
           </AnimatePresence>
