@@ -2,8 +2,9 @@
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Info } from 'lucide-react'
+import { Calendar, Info, Pencil } from 'lucide-react'
 import { WordDetailsDialog } from '@/components/word-details-dialog'
+import { WordEditDialog } from '@/components/word-edit-dialog'
 import { Button } from '@/components/ui/button'
 
 interface Word {
@@ -75,13 +76,19 @@ export function WordsList({ words }: WordsListProps) {
                   )}
                 </div>
                 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {nextReviewDate && (
-                    <div className={`text-sm flex items-center gap-1 ${isOverdue ? 'text-yellow-400' : 'text-muted-foreground'}`}>
+                    <div className={`text-sm flex items-center gap-1 mr-2 ${isOverdue ? 'text-yellow-400' : 'text-muted-foreground'}`}>
                       <Calendar className="w-4 h-4" />
                       {isOverdue ? 'আজ পড়তে হবে' : nextReviewDate.toLocaleDateString('bn-BD')}
                     </div>
                   )}
+                  <WordEditDialog word={word}>
+                    <Button variant="outline" size="sm" className="border-yellow-500/30 hover:bg-yellow-500/10">
+                      <Pencil className="w-4 h-4 mr-1" />
+                      সম্পাদনা
+                    </Button>
+                  </WordEditDialog>
                   <WordDetailsDialog word={word}>
                     <Button variant="outline" size="sm" className="border-indigo-500/30 hover:bg-indigo-500/10">
                       <Info className="w-4 h-4 mr-1" />
