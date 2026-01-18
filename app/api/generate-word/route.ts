@@ -3,28 +3,51 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const WORD_GENERATION_PROMPT = `You are an expert vocabulary assistant for a Bengali vocabulary learning app.
 
-When given an English word, generate:
+When given an English word, you MUST generate ALL of the following:
 1. Corrected spelling (if wrong)
-2. Simple Bangla meaning (student-friendly, avoid difficult words)
-3. One short, easy example sentence
-4. Pronunciation in readable phonetic form (e.g., ser-uhn-DIP-i-tee)
-5. 3-5 simple synonyms
-6. 2-3 relevant antonyms
+2. Part of speech: ONE of (noun, verb, adjective, adverb, preposition, conjunction, interjection, pronoun)
+3. Sub-type: REQUIRED based on part of speech:
+   - If noun: ONE of (proper_noun, common_noun, concrete_noun, abstract_noun, collective_noun, countable_noun, uncountable_noun)
+   - If verb: ONE of (transitive, intransitive, linking, auxiliary, modal, phrasal, regular, irregular) - typically use "transitive" or "intransitive"
+   - If adjective: ONE of (descriptive, comparative, superlative, possessive, demonstrative, proper, compound) - typically "descriptive"
+   - If adverb: ONE of (manner, place, time, frequency, degree)
+   - For other parts of speech, use the most appropriate sub-type or leave as empty string
+4. Simple Bangla meaning (student-friendly)
+5. One short example sentence
+6. Bengali translation of the example sentence
+7. Pronunciation in phonetic form
+8. 3-5 synonyms
+9. 2-3 antonyms
+10. For VERB: include verb_forms with present, past, past_participle, present_participle
 
-IMPORTANT: Return ONLY valid JSON, no markdown, no explanation.
+CRITICAL: sub_type is REQUIRED. Always include it.
 
-Format:
+Examples:
+- "work" (verb) → sub_type: "intransitive" 
+- "run" (verb) → sub_type: "intransitive"
+- "eat" (verb) → sub_type: "transitive"
+- "book" (noun) → sub_type: "countable_noun"
+- "water" (noun) → sub_type: "uncountable_noun"
+- "beautiful" (adjective) → sub_type: "descriptive"
+- "quickly" (adverb) → sub_type: "manner"
+
+Return ONLY valid JSON:
 {
   "word": "corrected word",
-  "meaning_bn": "simple Bangla meaning",
-  "example": "short example sentence",
-  "pronunciation": "phonetic pronunciation",
-  "synonyms": ["syn1", "syn2", "syn3"],
-  "antonyms": ["ant1", "ant2"]
+  "part_of_speech": "verb",
+  "sub_type": "transitive",
+  "meaning_bn": "বাংলা অর্থ",
+  "example": "example sentence",
+  "example_bn": "বাংলা অনুবাদ",
+  "pronunciation": "phonetic",
+  "synonyms": ["syn1", "syn2"],
+  "antonyms": ["ant1", "ant2"],
+  "verb_forms": {"present": "work", "past": "worked", "past_participle": "worked", "present_participle": "working"}
 }
 
-If the word doesn't exist or is invalid, return:
-{"error": "Invalid word"}`
+Include verb_forms ONLY for verbs. sub_type is ALWAYS required.
+
+If invalid word: {"error": "Invalid word"}`
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,7 +79,7 @@ export async function POST(request: NextRequest) {
       model: 'gemini-2.5-flash',
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 500,
+        maxOutputTokens: 1000,
       }
     })
 
@@ -66,13 +89,20 @@ export async function POST(request: NextRequest) {
 
     let wordData
     try {
-      const cleanJson = responseText
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
+      // Remove markdown code blocks and clean the response
+      let cleanJson = responseText
+        .replace(/```json\s*/gi, '')
+        .replace(/```\s*/gi, '')
         .trim()
       
+      // Try to extract JSON object if there's extra text
+      const jsonMatch = cleanJson.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        cleanJson = jsonMatch[0]
+      }
+      
       wordData = JSON.parse(cleanJson)
-    } catch {
+    } catch (parseError) {
       console.error('Failed to parse AI response:', responseText)
       return NextResponse.json({
         word: word,

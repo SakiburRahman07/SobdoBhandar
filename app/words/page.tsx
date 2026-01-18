@@ -4,15 +4,9 @@ import Link from 'next/link'
 import { Navbar } from '@/components/navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Plus, 
-  Search, 
-  BookOpen,
-  Trash2,
-  Calendar
-} from 'lucide-react'
+import { Plus, BookOpen } from 'lucide-react'
+import { WordsList } from '@/components/words-list'
 
 export default async function WordsPage() {
   const supabase = await createClient()
@@ -87,54 +81,7 @@ export default async function WordsPage() {
 
         {/* Word List */}
         {words && words.length > 0 ? (
-          <div className="grid gap-4">
-            {words.map((word) => {
-              const nextReview = word.review_schedule?.[0]?.next_review_date
-              const nextReviewDate = nextReview ? new Date(nextReview) : null
-              const isOverdue = nextReviewDate && nextReviewDate <= new Date()
-              
-              return (
-                <Card key={word.id} className="glass-card border-white/10 hover:border-white/20 transition-colors">
-                  <CardContent className="py-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-semibold font-english">{word.english_word}</h3>
-                          <Badge 
-                            variant="outline"
-                            className={
-                              word.difficulty === 'easy' 
-                                ? 'border-green-500/30 text-green-400' 
-                                : word.difficulty === 'hard'
-                                  ? 'border-red-500/30 text-red-400'
-                                  : 'border-yellow-500/30 text-yellow-400'
-                            }
-                          >
-                            {word.difficulty === 'easy' ? 'সহজ' : word.difficulty === 'hard' ? 'কঠিন' : 'মাঝারি'}
-                          </Badge>
-                        </div>
-                        <p className="text-lg text-muted-foreground font-bangla mb-2">{word.bangla_meaning}</p>
-                        {word.example_sentence && (
-                          <p className="text-sm text-muted-foreground font-english italic">
-                            &ldquo;{word.example_sentence}&rdquo;
-                          </p>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-4">
-                        {nextReviewDate && (
-                          <div className={`text-sm flex items-center gap-1 ${isOverdue ? 'text-yellow-400' : 'text-muted-foreground'}`}>
-                            <Calendar className="w-4 h-4" />
-                            {isOverdue ? 'আজ পড়তে হবে' : nextReviewDate.toLocaleDateString('bn-BD')}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+          <WordsList words={words} />
         ) : (
           <Card className="glass-card border-white/10">
             <CardContent className="py-12 text-center">
@@ -156,3 +103,4 @@ export default async function WordsPage() {
     </div>
   )
 }
+

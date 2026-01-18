@@ -29,19 +29,34 @@ interface WordFormProps {
 
 interface WordData {
   word: string
+  part_of_speech?: string
+  sub_type?: string
   meaning_bn: string
   example: string
+  example_bn?: string
   pronunciation: string
   synonyms: string[]
   antonyms: string[]
+  verb_forms?: {
+    present: string
+    past: string
+    past_participle: string
+    present_participle: string
+  }
   ai_generated?: boolean
 }
+
+import { PARTS_OF_SPEECH, getSubTypes } from '@/lib/parts-of-speech-data'
 
 export function WordForm({ userId, onSuccess }: WordFormProps) {
   const [englishWord, setEnglishWord] = useState('')
   const [banglaMeaning, setBanglaMeaning] = useState('')
+  const [partOfSpeech, setPartOfSpeech] = useState('')
+  const [subType, setSubType] = useState('')
   const [exampleSentence, setExampleSentence] = useState('')
+  const [exampleSentenceBn, setExampleSentenceBn] = useState('')
   const [pronunciation, setPronunciation] = useState('')
+  const [verbForms, setVerbForms] = useState<{ present: string; past: string; past_participle: string; present_participle: string } | null>(null)
   const [synonyms, setSynonyms] = useState<string[]>([])
   const [antonyms, setAntonyms] = useState<string[]>([])
   const [newSynonym, setNewSynonym] = useState('')
@@ -79,11 +94,15 @@ export function WordForm({ userId, onSuccess }: WordFormProps) {
       }
 
       if (data.word) setEnglishWord(data.word)
+      if (data.part_of_speech) setPartOfSpeech(data.part_of_speech)
+      if (data.sub_type) setSubType(data.sub_type)
       if (data.meaning_bn) setBanglaMeaning(data.meaning_bn)
       if (data.example) setExampleSentence(data.example)
+      if (data.example_bn) setExampleSentenceBn(data.example_bn)
       if (data.pronunciation) setPronunciation(data.pronunciation)
       if (data.synonyms?.length) setSynonyms(data.synonyms)
       if (data.antonyms?.length) setAntonyms(data.antonyms)
+      if (data.verb_forms) setVerbForms(data.verb_forms)
 
       if (data.ai_generated) {
         setAiGenerated(true)
@@ -136,8 +155,12 @@ export function WordForm({ userId, onSuccess }: WordFormProps) {
   const resetForm = () => {
     setEnglishWord('')
     setBanglaMeaning('')
+    setPartOfSpeech('')
+    setSubType('')
     setExampleSentence('')
+    setExampleSentenceBn('')
     setPronunciation('')
+    setVerbForms(null)
     setSynonyms([])
     setAntonyms([])
     setAiGenerated(false)
@@ -160,7 +183,11 @@ export function WordForm({ userId, onSuccess }: WordFormProps) {
           user_id: userId,
           english_word: englishWord.trim(),
           bangla_meaning: banglaMeaning.trim(),
+          part_of_speech: partOfSpeech || null,
+          sub_type: subType || null,
+          verb_forms: verbForms || null,
           example_sentence: exampleSentence.trim() || null,
+          example_sentence_bn: exampleSentenceBn.trim() || null,
           pronunciation: pronunciation.trim() || null,
           synonyms: synonyms.length > 0 ? synonyms : null,
           antonyms: antonyms.length > 0 ? antonyms : null,
@@ -276,11 +303,119 @@ export function WordForm({ userId, onSuccess }: WordFormProps) {
             </div>
           </div>
 
+          {/* Parts of Speech Dropdown */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="partOfSpeech" className="flex items-center gap-2">
+                পদ প্রকার (Parts of Speech)
+                {aiGenerated && partOfSpeech && <Badge variant="outline" className="text-xs border-green-500/30 text-green-400"><Check className="w-3 h-3 mr-1" />AI</Badge>}
+              </Label>
+              <select
+                id="partOfSpeech"
+                value={partOfSpeech}
+                onChange={(e) => {
+                  setPartOfSpeech(e.target.value)
+                  setSubType('')
+                  if (e.target.value !== 'verb') setVerbForms(null)
+                }}
+                className="flex h-10 w-full rounded-md border border-white/10 bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="">নির্বাচন করুন</option>
+                {PARTS_OF_SPEECH.map(pos => (
+                  <option key={pos.value} value={pos.value}>{pos.label} ({pos.labelBn})</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Sub-Type Dropdown */}
+            <div className="space-y-2">
+              <Label htmlFor="subType" className="flex items-center gap-2">
+                উপ-প্রকার (Sub-Type)
+                {aiGenerated && subType && <Badge variant="outline" className="text-xs border-green-500/30 text-green-400"><Check className="w-3 h-3 mr-1" />AI</Badge>}
+              </Label>
+              <select
+                id="subType"
+                value={subType}
+                onChange={(e) => setSubType(e.target.value)}
+                disabled={!partOfSpeech}
+                className="flex h-10 w-full rounded-md border border-white/10 bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
+              >
+                <option value="">নির্বাচন করুন</option>
+                {getSubTypes(partOfSpeech).map(st => (
+                  <option key={st.value} value={st.value}>{st.label} ({st.labelBn})</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Bengali Example Sentence */}
+          <div className="space-y-2">
+            <Label htmlFor="exampleSentenceBn" className="flex items-center gap-2">
+              উদাহরণের বাংলা অনুবাদ
+              {aiGenerated && exampleSentenceBn && <Badge variant="outline" className="text-xs border-green-500/30 text-green-400"><Check className="w-3 h-3 mr-1" />AI</Badge>}
+            </Label>
+            <Input
+              id="exampleSentenceBn"
+              value={exampleSentenceBn}
+              onChange={(e) => setExampleSentenceBn(e.target.value)}
+              placeholder="আবিষ্কারটি ছিল এক সুখকর সৌভাগ্য।"
+              className="bg-background/50 border-white/10 font-bangla"
+            />
+          </div>
+
+          {/* Verb Forms (conditional) */}
+          {partOfSpeech === 'verb' && (
+            <div className="space-y-3 p-4 rounded-lg bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+              <Label className="flex items-center gap-2 text-indigo-300">
+                ক্রিয়ার রূপ (Verb Forms)
+                {aiGenerated && verbForms && <Badge variant="outline" className="text-xs border-green-500/30 text-green-400"><Check className="w-3 h-3 mr-1" />AI</Badge>}
+              </Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Present (বর্তমান)</Label>
+                  <Input
+                    value={verbForms?.present || ''}
+                    onChange={(e) => setVerbForms(prev => ({ ...prev!, present: e.target.value }))}
+                    placeholder="go"
+                    className="bg-background/50 border-white/10 font-english h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Past (অতীত)</Label>
+                  <Input
+                    value={verbForms?.past || ''}
+                    onChange={(e) => setVerbForms(prev => ({ ...prev!, past: e.target.value }))}
+                    placeholder="went"
+                    className="bg-background/50 border-white/10 font-english h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Past Participle</Label>
+                  <Input
+                    value={verbForms?.past_participle || ''}
+                    onChange={(e) => setVerbForms(prev => ({ ...prev!, past_participle: e.target.value }))}
+                    placeholder="gone"
+                    className="bg-background/50 border-white/10 font-english h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Present Participle</Label>
+                  <Input
+                    value={verbForms?.present_participle || ''}
+                    onChange={(e) => setVerbForms(prev => ({ ...prev!, present_participle: e.target.value }))}
+                    placeholder="going"
+                    className="bg-background/50 border-white/10 font-english h-9 text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Example Sentence */}
           <div className="space-y-2">
             <Label htmlFor="exampleSentence" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-muted-foreground" />
-              উদাহরণ বাক্য
+              উদাহরণ বাক্য (English)
               {aiGenerated && exampleSentence && <Badge variant="outline" className="text-xs border-green-500/30 text-green-400"><Check className="w-3 h-3 mr-1" />AI</Badge>}
             </Label>
             <Input
