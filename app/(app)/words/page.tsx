@@ -6,6 +6,15 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/workspace/page-header";
 import { WordsExplorer } from "@/components/workspace/words-explorer";
 
+function normalizeInitialWord(word: WordListItem) {
+  return {
+    ...word,
+    review_schedule: Array.isArray(word.review_schedule)
+      ? word.review_schedule[0] ?? null
+      : (word.review_schedule ?? null),
+  };
+}
+
 export default async function WordsPage() {
   const supabase = await createClient();
   const {
@@ -54,11 +63,32 @@ export default async function WordsPage() {
   `;
 
   let supportsPinned = true;
-  let wordsQuery = await supabase.from("words").select(selectWithPin).eq("user_id", user.id).order("created_at", { ascending: false }).range(0, 29);
+  const wordsWithPinQuery = await supabase
+    .from("words")
+    .select(selectWithPin)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .range(0, 29);
 
-  if (wordsQuery.error && wordsQuery.error.message.includes("is_pinned")) {
+  let initialWords: WordListItem[] = [];
+
+  if (wordsWithPinQuery.error && wordsWithPinQuery.error.message.includes("is_pinned")) {
     supportsPinned = false;
-    wordsQuery = await supabase.from("words").select(selectWithoutPin).eq("user_id", user.id).order("created_at", { ascending: false }).range(0, 29);
+    const wordsWithoutPinQuery = await supabase
+      .from("words")
+      .select(selectWithoutPin)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .range(0, 29);
+
+    initialWords = ((wordsWithoutPinQuery.data || []) as WordListItem[]).map((word) =>
+      normalizeInitialWord({
+        ...word,
+        is_pinned: false,
+      }),
+    );
+  } else {
+    initialWords = ((wordsWithPinQuery.data || []) as WordListItem[]).map(normalizeInitialWord);
   }
 
   const [{ count: total }, { count: due }, { count: easy }, { count: hard }] = await Promise.all([
@@ -67,11 +97,6 @@ export default async function WordsPage() {
     supabase.from("words").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("difficulty", "easy"),
     supabase.from("words").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("difficulty", "hard"),
   ]);
-
-  const initialWords: WordListItem[] = (wordsQuery.data || []).map((word) => ({
-    ...word,
-    review_schedule: Array.isArray(word.review_schedule) ? word.review_schedule[0] ?? null : (word.review_schedule ?? null),
-  }));
 
   return (
     <div className="space-y-6">

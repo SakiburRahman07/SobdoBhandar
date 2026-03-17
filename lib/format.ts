@@ -2,7 +2,7 @@ import { format } from "date-fns";
 
 export function formatBanglaDate(value: string | Date, withYear = false) {
   const date = typeof value === "string" ? new Date(value) : value;
-  const locale = withYear
+  const locale: Intl.DateTimeFormatOptions = withYear
     ? { year: "numeric", month: "short", day: "numeric" }
     : { month: "short", day: "numeric" };
 
