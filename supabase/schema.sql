@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS words (
   synonyms TEXT[],
   antonyms TEXT[],
   difficulty TEXT DEFAULT 'medium' CHECK (difficulty IN ('easy', 'medium', 'hard')),
+  is_pinned BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -66,9 +67,14 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   notification_enabled BOOLEAN DEFAULT true,
   total_words_learned INTEGER DEFAULT 0,
   longest_streak INTEGER DEFAULT 0,
+  onboarding_completed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Safe additive changes for existing projects upgrading to V2
+ALTER TABLE words ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT false;
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS onboarding_completed_at TIMESTAMPTZ;
 
 -- Chat Messages (AI chatbot history)
 CREATE TABLE IF NOT EXISTS chat_messages (

@@ -1,35 +1,26 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+﻿import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { AIChatbot } from "@/components/ai-chatbot";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
+import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata: Metadata = {
-  title: "শব্দভাণ্ডার - English to Bangla Vocabulary",
-  description: "বৈজ্ঞানিক পদ্ধতিতে ইংরেজি থেকে বাংলা শব্দ শিখুন। Spaced Repetition ও Active Recall ব্যবহার করে কার্যকর শব্দ শেখা।",
+  title: "SobdoBhandar | English to Bangla Vocabulary Platform",
+  description:
+    "Spaced repetition, active recall, and progress-driven Bangla-first vocabulary learning for modern learners.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="bn" className="dark">
-      <body className={`${inter.variable} font-bangla antialiased`}>
-        <AuthProvider>
-          {children}
-          <AIChatbot />
-          <Toaster position="top-center" richColors />
-        </AuthProvider>
+    <html lang="bn" suppressHydrationWarning>
+      <body className="font-bangla antialiased">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <AuthProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
-

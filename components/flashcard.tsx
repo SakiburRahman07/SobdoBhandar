@@ -1,251 +1,207 @@
-'use client'
+﻿"use client";
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import type { WordWithReview } from '@/lib/types'
-import { Volume2, RotateCcw, ThumbsUp, ThumbsDown, Minus } from 'lucide-react'
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { BookAudio, Layers3, Minus, RotateCcw, ThumbsDown, ThumbsUp, Volume2 } from "lucide-react";
+import type { WordWithReview } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface FlashcardProps {
-  word: WordWithReview
-  showAnswer: boolean
-  onFlip: () => void
-  onRate: (difficulty: 'hard' | 'medium' | 'easy') => void
+  word: WordWithReview;
+  showAnswer: boolean;
+  onFlip: () => void;
+  onRate: (difficulty: "hard" | "medium" | "easy") => void;
 }
 
 export function Flashcard({ word, showAnswer, onFlip, onRate }: FlashcardProps) {
-  const [isFlipping, setIsFlipping] = useState(false)
-  const [ratingFeedback, setRatingFeedback] = useState<string | null>(null)
-
-  const handleFlip = () => {
-    if (isFlipping) return
-    setIsFlipping(true)
-    onFlip()
-    setTimeout(() => setIsFlipping(false), 600)
-  }
+  const [ratingFeedback, setRatingFeedback] = useState<string | null>(null);
 
   const handleSpeak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = 'en-US'
-      utterance.rate = 0.8
-      speechSynthesis.speak(utterance)
-    }
-  }
+    if (!("speechSynthesis" in window)) return;
 
-  const handleRate = (difficulty: 'hard' | 'medium' | 'easy') => {
-    // Show feedback animation
-    setRatingFeedback(difficulty)
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = 0.86;
+    speechSynthesis.speak(utterance);
+  };
+
+  const handleRate = (difficulty: "hard" | "medium" | "easy") => {
+    setRatingFeedback(difficulty);
     setTimeout(() => {
-      setRatingFeedback(null)
-      onRate(difficulty)
-    }, 500)
-  }
+      setRatingFeedback(null);
+      onRate(difficulty);
+    }, 320);
+  };
 
   return (
-    <div className="relative max-w-lg mx-auto perspective-1000">
-      {/* Rating Feedback Overlay */}
+    <div className="relative mx-auto max-w-4xl">
       <AnimatePresence>
-        {ratingFeedback && (
+        {ratingFeedback ? (
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
+            initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            className="absolute inset-0 z-50 flex items-center justify-center"
+            exit={{ opacity: 0, scale: 0.72 }}
+            className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
           >
-            <div className={`p-8 rounded-full ${
-              ratingFeedback === 'easy' ? 'bg-green-500/30' :
-              ratingFeedback === 'hard' ? 'bg-red-500/30' :
-              'bg-yellow-500/30'
-            }`}>
-              {ratingFeedback === 'easy' && <ThumbsUp className="w-16 h-16 text-green-400" />}
-              {ratingFeedback === 'hard' && <ThumbsDown className="w-16 h-16 text-red-400" />}
-              {ratingFeedback === 'medium' && <Minus className="w-16 h-16 text-yellow-400" />}
+            <div
+              className={`rounded-full p-8 ${
+                ratingFeedback === "easy"
+                  ? "bg-emerald-400/20"
+                  : ratingFeedback === "medium"
+                    ? "bg-amber-400/20"
+                    : "bg-rose-400/20"
+              }`}
+            >
+              {ratingFeedback === "easy" ? (
+                <ThumbsUp className="size-16 text-emerald-300" />
+              ) : ratingFeedback === "medium" ? (
+                <Minus className="size-16 text-amber-300" />
+              ) : (
+                <ThumbsDown className="size-16 text-rose-300" />
+              )}
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
 
-      {/* Flashcard Container */}
       <motion.div
-        className="relative w-full aspect-[3/4] cursor-pointer"
-        onClick={handleFlip}
-        animate={{ 
-          rotateY: showAnswer ? 180 : 0,
-        }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 300, 
-          damping: 30,
-          duration: 0.6
-        }}
-        style={{ transformStyle: 'preserve-3d' }}
+        className="relative min-h-[29rem] cursor-pointer"
+        onClick={onFlip}
+        animate={{ rotateY: showAnswer ? 180 : 0 }}
+        transition={{ type: "spring", stiffness: 240, damping: 28 }}
+        style={{ transformStyle: "preserve-3d" }}
       >
-        {/* Front - English Word */}
-        <motion.div
-          className="absolute inset-0"
-          style={{ backfaceVisibility: 'hidden' }}
-        >
-          <Card className="w-full h-full glass-card border-white/10 p-8 flex flex-col items-center justify-center text-center overflow-hidden">
-            {/* Decorative Elements */}
-            <div className="absolute top-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl" />
-            <div className="absolute bottom-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
-            
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Badge variant="outline" className="mb-6 text-indigo-400 border-indigo-400/30 px-4 py-1">
-                ইংরেজি শব্দ
-              </Badge>
-            </motion.div>
-            
-            <motion.h2 
-              className="text-5xl font-bold text-white mb-4 font-english"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-            >
-              {word.english_word}
-            </motion.h2>
-            
-            {word.pronunciation && (
-              <motion.p 
-                className="text-muted-foreground text-lg mb-6 font-english"
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                /{word.pronunciation}/
-              </motion.p>
-            )}
-            
-            <motion.div
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Button
-                variant="ghost"
-                size="lg"
-                className="text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 gap-2"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleSpeak(word.english_word)
-                }}
-              >
-                <Volume2 className="w-5 h-5" />
-                উচ্চারণ শুনুন
-              </Button>
-            </motion.div>
-            
-            <motion.p 
-              className="text-sm text-muted-foreground mt-8 flex items-center gap-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <RotateCcw className="w-4 h-4" />
-              ক্লিক করে উত্তর দেখুন
-            </motion.p>
-          </Card>
+        <motion.div className="absolute inset-0" style={{ backfaceVisibility: "hidden" }}>
+          <div className="v2-card relative flex min-h-[29rem] flex-col overflow-hidden rounded-[2rem] border p-6 sm:p-8">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(73,198,255,0.22),transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(253,186,77,0.16),transparent_30%)]" />
+            <div className="relative z-10 flex h-full flex-col">
+              <div className="flex items-center justify-between gap-3">
+                <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/10 px-3 py-1 text-primary">
+                  Front side
+                </Badge>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="rounded-2xl border-border/80 bg-background/40"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    handleSpeak(word.english_word);
+                  }}
+                >
+                  <Volume2 className="size-4" />
+                </Button>
+              </div>
+
+              <div className="flex flex-1 flex-col items-center justify-center text-center">
+                <div className="space-y-4">
+                  <p className="text-sm uppercase tracking-[0.22em] text-muted-foreground">English word</p>
+                  <h2 className="font-display text-5xl font-semibold tracking-tight text-foreground sm:text-6xl">
+                    {word.english_word}
+                  </h2>
+                  {word.pronunciation ? (
+                    <p className="font-english text-lg text-muted-foreground">/{word.pronunciation}/</p>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border border-border/70 bg-background/45 px-4 py-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <RotateCcw className="size-4" />
+                  Click or press Space to reveal the answer
+                </div>
+                {word.part_of_speech ? (
+                  <Badge variant="outline" className="rounded-full border-border/70 bg-surface px-3 py-1 text-muted-foreground">
+                    {word.part_of_speech}
+                  </Badge>
+                ) : null}
+              </div>
+            </div>
+          </div>
         </motion.div>
 
-        {/* Back - Bangla Meaning */}
-        <motion.div
-          className="absolute inset-0"
-          style={{ 
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
-          }}
-        >
-          <Card className="w-full h-full glass-card border-white/10 p-8 flex flex-col overflow-hidden">
-            {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-2xl" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl" />
-            
-            <div className="text-center mb-6">
-              <Badge variant="outline" className="text-green-400 border-green-400/30 px-4 py-1">
-                বাংলা অর্থ
-              </Badge>
-            </div>
-            
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <h2 className="text-4xl font-bold text-white mb-4 font-bangla text-center">
-                {word.bangla_meaning}
-              </h2>
-              
-              {word.example_sentence && (
-                <div className="mt-4 p-4 bg-white/5 rounded-xl border border-white/10 w-full">
-                  <p className="text-sm text-muted-foreground mb-1">উদাহরণ:</p>
-                  <p className="text-sm font-english italic text-center">
-                    &ldquo;{word.example_sentence}&rdquo;
-                  </p>
-                </div>
-              )}
-              
-              {((word.synonyms && word.synonyms.length > 0) || (word.antonyms && word.antonyms.length > 0)) && (
-                <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                  {word.synonyms?.slice(0, 3).map((syn, i) => (
-                    <Badge key={i} variant="outline" className="border-blue-500/30 text-blue-400">
-                      ≈ {syn}
+        <motion.div className="absolute inset-0" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+          <div className="v2-card relative flex min-h-[29rem] flex-col overflow-hidden rounded-[2rem] border p-6 sm:p-8">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(52,211,153,0.2),transparent_36%),radial-gradient(circle_at_bottom_left,_rgba(73,198,255,0.14),transparent_30%)]" />
+            <div className="relative z-10 flex h-full flex-col gap-5">
+              <div className="flex items-center justify-between gap-3">
+                <Badge variant="outline" className="rounded-full border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">
+                  Answer side
+                </Badge>
+                <div className="flex items-center gap-2">
+                  {word.synonyms?.length ? (
+                    <Badge variant="outline" className="rounded-full border-border/70 bg-surface px-3 py-1 text-muted-foreground">
+                      <Layers3 className="mr-2 size-3.5" />
+                      {word.synonyms.length} synonyms
                     </Badge>
-                  ))}
-                  {word.antonyms?.slice(0, 2).map((ant, i) => (
-                    <Badge key={i} variant="outline" className="border-orange-500/30 text-orange-400">
-                      ≠ {ant}
+                  ) : null}
+                  {word.example_sentence ? (
+                    <Badge variant="outline" className="rounded-full border-border/70 bg-surface px-3 py-1 text-muted-foreground">
+                      <BookAudio className="mr-2 size-3.5" />
+                      Example ready
                     </Badge>
-                  ))}
+                  ) : null}
                 </div>
-              )}
+              </div>
+
+              <div className="flex flex-1 flex-col justify-center gap-6 text-center">
+                <div className="space-y-3">
+                  <p className="text-sm uppercase tracking-[0.22em] text-muted-foreground">Bangla meaning</p>
+                  <h2 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">{word.bangla_meaning}</h2>
+                </div>
+
+                {word.example_sentence || word.example_sentence_bn ? (
+                  <div className="rounded-[1.5rem] border border-border/70 bg-background/45 p-5 text-left">
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Example</p>
+                    {word.example_sentence ? (
+                      <p className="mt-3 font-english text-base leading-7 text-foreground">{word.example_sentence}</p>
+                    ) : null}
+                    {word.example_sentence_bn ? (
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{word.example_sentence_bn}</p>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {word.synonyms?.length || word.antonyms?.length ? (
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    {word.synonyms?.slice(0, 3).map((synonym) => (
+                      <Badge key={synonym} variant="outline" className="rounded-full border-primary/20 bg-primary/10 px-3 py-1 text-primary">
+                        Syn: {synonym}
+                      </Badge>
+                    ))}
+                    {word.antonyms?.slice(0, 2).map((antonym) => (
+                      <Badge key={antonym} variant="outline" className="rounded-full border-rose-400/20 bg-rose-400/10 px-3 py-1 text-rose-300">
+                        Ant: {antonym}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             </div>
-          </Card>
+          </div>
         </motion.div>
       </motion.div>
 
-      {/* Rating Buttons */}
       <AnimatePresence>
-        {showAnswer && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 20, opacity: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mt-8 flex justify-center gap-3"
-          >
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => handleRate('hard')}
-              className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 gap-2 px-6"
-            >
-              <ThumbsDown className="w-5 h-5" />
-              কঠিন
+        {showAnswer ? (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }} className="mt-6 grid gap-3 sm:grid-cols-3">
+            <Button type="button" variant="outline" className="h-14 rounded-2xl border-rose-400/25 bg-rose-400/10 text-base text-rose-300 hover:bg-rose-400/15" onClick={() => handleRate("hard")}>
+              <ThumbsDown className="mr-2 size-4" />
+              Hard
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => handleRate('medium')}
-              className="border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300 gap-2 px-6"
-            >
-              <Minus className="w-5 h-5" />
-              মাঝারি
+            <Button type="button" variant="outline" className="h-14 rounded-2xl border-amber-400/25 bg-amber-400/10 text-base text-amber-300 hover:bg-amber-400/15" onClick={() => handleRate("medium")}>
+              <Minus className="mr-2 size-4" />
+              Medium
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => handleRate('easy')}
-              className="border-green-500/30 text-green-400 hover:bg-green-500/10 hover:text-green-300 gap-2 px-6"
-            >
-              <ThumbsUp className="w-5 h-5" />
-              সহজ
+            <Button type="button" variant="outline" className="h-14 rounded-2xl border-emerald-400/25 bg-emerald-400/10 text-base text-emerald-300 hover:bg-emerald-400/15" onClick={() => handleRate("easy")}>
+              <ThumbsUp className="mr-2 size-4" />
+              Easy
             </Button>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
-  )
+  );
 }

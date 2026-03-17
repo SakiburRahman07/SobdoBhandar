@@ -1,387 +1,374 @@
-'use client'
+﻿"use client";
 
-import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Pencil, Save, Loader2, Trash2, Plus, X } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
-import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
-import { PARTS_OF_SPEECH, getSubTypes } from '@/lib/parts-of-speech-data'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
+import { getSubTypes, PARTS_OF_SPEECH } from "@/lib/parts-of-speech-data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface Word {
-  id: string
-  english_word: string
-  bangla_meaning: string
-  part_of_speech?: string | null
-  sub_type?: string | null
+  id: string;
+  english_word: string;
+  bangla_meaning: string;
+  part_of_speech?: string | null;
+  sub_type?: string | null;
   verb_forms?: {
-    present: string
-    past: string
-    past_participle: string
-    present_participle: string
-  } | null
-  example_sentence?: string | null
-  example_sentence_bn?: string | null
-  pronunciation?: string | null
-  synonyms?: string[] | null
-  antonyms?: string[] | null
-  difficulty?: string
+    present: string;
+    past: string;
+    past_participle: string;
+    present_participle: string;
+  } | null;
+  example_sentence?: string | null;
+  example_sentence_bn?: string | null;
+  pronunciation?: string | null;
+  synonyms?: string[] | null;
+  antonyms?: string[] | null;
+  difficulty?: string;
 }
 
 interface WordEditDialogProps {
-  word: Word
-  children?: React.ReactNode
+  word: Word;
+  children?: React.ReactNode;
 }
 
-export function WordEditDialog({ word, children }: WordEditDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-  
-  const [englishWord, setEnglishWord] = useState(word.english_word)
-  const [banglaMeaning, setBanglaMeaning] = useState(word.bangla_meaning)
-  const [partOfSpeech, setPartOfSpeech] = useState(word.part_of_speech || '')
-  const [subType, setSubType] = useState(word.sub_type || '')
-  const [exampleSentence, setExampleSentence] = useState(word.example_sentence || '')
-  const [exampleSentenceBn, setExampleSentenceBn] = useState(word.example_sentence_bn || '')
-  const [pronunciation, setPronunciation] = useState(word.pronunciation || '')
-  const [difficulty, setDifficulty] = useState(word.difficulty || 'medium')
-  const [verbForms, setVerbForms] = useState(word.verb_forms || { present: '', past: '', past_participle: '', present_participle: '' })
-  const [synonyms, setSynonyms] = useState<string[]>(word.synonyms || [])
-  const [antonyms, setAntonyms] = useState<string[]>(word.antonyms || [])
-  const [newSynonym, setNewSynonym] = useState('')
-  const [newAntonym, setNewAntonym] = useState('')
+const emptyVerbForms = {
+  present: "",
+  past: "",
+  past_participle: "",
+  present_participle: "",
+};
 
-  const router = useRouter()
-  const supabase = createClient()
+export function WordEditDialog({ word, children }: WordEditDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const [englishWord, setEnglishWord] = useState(word.english_word);
+  const [banglaMeaning, setBanglaMeaning] = useState(word.bangla_meaning);
+  const [partOfSpeech, setPartOfSpeech] = useState(word.part_of_speech || "");
+  const [subType, setSubType] = useState(word.sub_type || "");
+  const [exampleSentence, setExampleSentence] = useState(word.example_sentence || "");
+  const [exampleSentenceBn, setExampleSentenceBn] = useState(word.example_sentence_bn || "");
+  const [pronunciation, setPronunciation] = useState(word.pronunciation || "");
+  const [difficulty, setDifficulty] = useState(word.difficulty || "medium");
+  const [verbForms, setVerbForms] = useState(word.verb_forms || emptyVerbForms);
+  const [synonyms, setSynonyms] = useState<string[]>(word.synonyms || []);
+  const [antonyms, setAntonyms] = useState<string[]>(word.antonyms || []);
+  const [newSynonym, setNewSynonym] = useState("");
+  const [newAntonym, setNewAntonym] = useState("");
+
+  const router = useRouter();
+  const supabase = createClient();
 
   const addSynonym = () => {
     if (newSynonym.trim() && !synonyms.includes(newSynonym.trim())) {
-      setSynonyms([...synonyms, newSynonym.trim()])
-      setNewSynonym('')
+      setSynonyms([...synonyms, newSynonym.trim()]);
+      setNewSynonym("");
     }
-  }
+  };
 
   const addAntonym = () => {
     if (newAntonym.trim() && !antonyms.includes(newAntonym.trim())) {
-      setAntonyms([...antonyms, newAntonym.trim()])
-      setNewAntonym('')
+      setAntonyms([...antonyms, newAntonym.trim()]);
+      setNewAntonym("");
     }
-  }
+  };
 
   const handleSave = async () => {
     if (!englishWord.trim() || !banglaMeaning.trim()) {
-      toast.error('ইংরেজি শব্দ এবং বাংলা অর্থ আবশ্যক')
-      return
+      toast.error("English word and Bangla meaning are required.");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       const { error } = await supabase
-        .from('words')
+        .from("words")
         .update({
           english_word: englishWord.trim(),
           bangla_meaning: banglaMeaning.trim(),
           part_of_speech: partOfSpeech || null,
           sub_type: subType || null,
-          verb_forms: partOfSpeech === 'verb' ? verbForms : null,
+          verb_forms: partOfSpeech === "verb" ? verbForms : null,
           example_sentence: exampleSentence.trim() || null,
           example_sentence_bn: exampleSentenceBn.trim() || null,
           pronunciation: pronunciation.trim() || null,
           synonyms: synonyms.length > 0 ? synonyms : null,
           antonyms: antonyms.length > 0 ? antonyms : null,
-          difficulty: difficulty,
+          difficulty,
         })
-        .eq('id', word.id)
+        .eq("id", word.id);
 
-      if (error) throw error
+      if (error) throw error;
 
-      toast.success('শব্দ আপডেট হয়েছে!')
-      setOpen(false)
-      router.refresh()
+      toast.success("Word updated.");
+      setOpen(false);
+      router.refresh();
     } catch (error) {
-      console.error('Error updating word:', error)
-      toast.error('শব্দ আপডেট করতে সমস্যা হয়েছে')
+      console.error("Error updating word:", error);
+      toast.error("Could not update the word.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDelete = async () => {
-    if (!confirm('আপনি কি নিশ্চিত এই শব্দ মুছে ফেলতে চান?')) return
-
-    setDeleting(true)
+    setDeleting(true);
     try {
-      const { error } = await supabase
-        .from('words')
-        .delete()
-        .eq('id', word.id)
+      const { error } = await supabase.from("words").delete().eq("id", word.id);
+      if (error) throw error;
 
-      if (error) throw error
-
-      toast.success('শব্দ মুছে ফেলা হয়েছে')
-      setOpen(false)
-      router.refresh()
+      toast.success("Word deleted.");
+      setOpen(false);
+      router.refresh();
     } catch (error) {
-      console.error('Error deleting word:', error)
-      toast.error('শব্দ মুছতে সমস্যা হয়েছে')
+      console.error("Error deleting word:", error);
+      toast.error("Could not delete the word.");
     } finally {
-      setDeleting(false)
+      setDeleting(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children || (
           <Button variant="outline" size="sm" className="border-yellow-500/30 hover:bg-yellow-500/10">
-            <Pencil className="w-4 h-4 mr-1" />
-            সম্পাদনা
+            <Pencil className="mr-1 h-4 w-4" />
+            Edit
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl bg-background/95 backdrop-blur-xl border-white/10 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto border-white/10 bg-background/95 backdrop-blur-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Pencil className="w-5 h-5 text-yellow-400" />
-            শব্দ সম্পাদনা করুন
+            <Pencil className="h-5 w-5 text-yellow-400" />
+            Edit word
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {/* English Word & Bangla Meaning */}
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-5 py-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>ইংরেজি শব্দ *</Label>
-              <Input
-                value={englishWord}
-                onChange={(e) => setEnglishWord(e.target.value)}
-                className="bg-background/50 border-white/10"
-              />
+              <Label>English word</Label>
+              <Input value={englishWord} onChange={(event) => setEnglishWord(event.target.value)} className="border-white/10 bg-background/50" />
             </div>
             <div className="space-y-2">
-              <Label>বাংলা অর্থ *</Label>
-              <Input
-                value={banglaMeaning}
-                onChange={(e) => setBanglaMeaning(e.target.value)}
-                className="bg-background/50 border-white/10"
-              />
+              <Label>Bangla meaning</Label>
+              <Input value={banglaMeaning} onChange={(event) => setBanglaMeaning(event.target.value)} className="border-white/10 bg-background/50" />
             </div>
           </div>
 
-          {/* Parts of Speech & Sub-Type */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>পদ প্রকার</Label>
+              <Label>Part of speech</Label>
               <select
                 value={partOfSpeech}
-                onChange={(e) => {
-                  setPartOfSpeech(e.target.value)
-                  setSubType('')
+                onChange={(event) => {
+                  const nextValue = event.target.value;
+                  setPartOfSpeech(nextValue);
+                  setSubType("");
+                  if (nextValue !== "verb") setVerbForms(emptyVerbForms);
                 }}
                 className="flex h-10 w-full rounded-md border border-white/10 bg-background/50 px-3 py-2 text-sm"
               >
-                <option value="">নির্বাচন করুন</option>
-                {PARTS_OF_SPEECH.map(pos => (
-                  <option key={pos.value} value={pos.value}>{pos.label} ({pos.labelBn})</option>
+                <option value="">Select a part of speech</option>
+                {PARTS_OF_SPEECH.map((item) => (
+                  <option key={item.value} value={item.value}>{item.label} ({item.labelBn})</option>
                 ))}
               </select>
             </div>
             <div className="space-y-2">
-              <Label>উপ-প্রকার</Label>
+              <Label>Sub-type</Label>
               <select
                 value={subType}
-                onChange={(e) => setSubType(e.target.value)}
+                onChange={(event) => setSubType(event.target.value)}
                 disabled={!partOfSpeech}
                 className="flex h-10 w-full rounded-md border border-white/10 bg-background/50 px-3 py-2 text-sm disabled:opacity-50"
               >
-                <option value="">নির্বাচন করুন</option>
-                {getSubTypes(partOfSpeech).map(st => (
-                  <option key={st.value} value={st.value}>{st.label} ({st.labelBn})</option>
+                <option value="">Select a sub-type</option>
+                {getSubTypes(partOfSpeech).map((item) => (
+                  <option key={item.value} value={item.value}>{item.label} ({item.labelBn})</option>
                 ))}
               </select>
             </div>
           </div>
 
-          {/* Verb Forms (conditional) */}
-          {partOfSpeech === 'verb' && (
-            <div className="space-y-3 p-4 rounded-lg bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
-              <Label className="text-indigo-300">ক্রিয়ার রূপ (Verb Forms)</Label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Present</Label>
-                  <Input
-                    value={verbForms.present}
-                    onChange={(e) => setVerbForms({ ...verbForms, present: e.target.value })}
-                    placeholder="go"
-                    className="bg-background/50 border-white/10 h-9 text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Past</Label>
-                  <Input
-                    value={verbForms.past}
-                    onChange={(e) => setVerbForms({ ...verbForms, past: e.target.value })}
-                    placeholder="went"
-                    className="bg-background/50 border-white/10 h-9 text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Past Participle</Label>
-                  <Input
-                    value={verbForms.past_participle}
-                    onChange={(e) => setVerbForms({ ...verbForms, past_participle: e.target.value })}
-                    placeholder="gone"
-                    className="bg-background/50 border-white/10 h-9 text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Present Participle</Label>
-                  <Input
-                    value={verbForms.present_participle}
-                    onChange={(e) => setVerbForms({ ...verbForms, present_participle: e.target.value })}
-                    placeholder="going"
-                    className="bg-background/50 border-white/10 h-9 text-sm"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Example Sentences */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>উদাহরণ বাক্য (English)</Label>
-              <Input
-                value={exampleSentence}
-                onChange={(e) => setExampleSentence(e.target.value)}
-                className="bg-background/50 border-white/10"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>উদাহরণ বাক্য (বাংলা)</Label>
-              <Input
-                value={exampleSentenceBn}
-                onChange={(e) => setExampleSentenceBn(e.target.value)}
-                className="bg-background/50 border-white/10"
-              />
-            </div>
-          </div>
-
-          {/* Pronunciation */}
-          <div className="space-y-2">
-            <Label>উচ্চারণ</Label>
-            <Input
-              value={pronunciation}
-              onChange={(e) => setPronunciation(e.target.value)}
-              className="bg-background/50 border-white/10"
-            />
-          </div>
-
-          {/* Synonyms */}
-          <div className="space-y-2">
-            <Label>প্রতিশব্দ (Synonyms)</Label>
-            <div className="flex gap-2">
-              <Input
-                value={newSynonym}
-                onChange={(e) => setNewSynonym(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSynonym())}
-                placeholder="নতুন প্রতিশব্দ"
-                className="bg-background/50 border-white/10"
-              />
-              <Button type="button" variant="outline" size="icon" onClick={addSynonym}>
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-            {synonyms.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {synonyms.map((syn, i) => (
-                  <Badge key={i} variant="outline" className="border-green-500/30 text-green-400 flex items-center gap-1">
-                    {syn}
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSynonyms(synonyms.filter((_, idx) => idx !== i))} />
-                  </Badge>
+          {partOfSpeech === "verb" ? (
+            <div className="rounded-[1.5rem] border border-primary/20 bg-primary/5 p-4">
+              <Label className="text-sm font-medium text-foreground">Verb forms</Label>
+              <div className="mt-3 grid gap-3 md:grid-cols-4">
+                {[
+                  ["present", "Present", "go"],
+                  ["past", "Past", "went"],
+                  ["past_participle", "Past participle", "gone"],
+                  ["present_participle", "Present participle", "going"],
+                ].map(([key, label, placeholder]) => (
+                  <div key={key} className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">{label}</Label>
+                    <Input
+                      value={verbForms[key as keyof typeof verbForms]}
+                      onChange={(event) => setVerbForms((prev) => ({ ...prev, [key]: event.target.value }))}
+                      placeholder={placeholder}
+                      className="h-9 border-white/10 bg-background/50 text-sm"
+                    />
+                  </div>
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* Antonyms */}
-          <div className="space-y-2">
-            <Label>বিপরীত শব্দ (Antonyms)</Label>
-            <div className="flex gap-2">
-              <Input
-                value={newAntonym}
-                onChange={(e) => setNewAntonym(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addAntonym())}
-                placeholder="নতুন বিপরীত শব্দ"
-                className="bg-background/50 border-white/10"
-              />
-              <Button type="button" variant="outline" size="icon" onClick={addAntonym}>
-                <Plus className="w-4 h-4" />
-              </Button>
             </div>
-            {antonyms.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {antonyms.map((ant, i) => (
-                  <Badge key={i} variant="outline" className="border-red-500/30 text-red-400 flex items-center gap-1">
-                    {ant}
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => setAntonyms(antonyms.filter((_, idx) => idx !== i))} />
-                  </Badge>
-                ))}
-              </div>
-            )}
+          ) : null}
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Example sentence</Label>
+              <textarea value={exampleSentence} onChange={(event) => setExampleSentence(event.target.value)} className="min-h-28 w-full rounded-[1.25rem] border border-white/10 bg-background/50 px-4 py-3 text-sm text-foreground outline-none transition focus:border-ring focus:ring-[3px] focus:ring-ring/40" />
+            </div>
+            <div className="space-y-2">
+              <Label>Bangla translation</Label>
+              <textarea value={exampleSentenceBn} onChange={(event) => setExampleSentenceBn(event.target.value)} className="min-h-28 w-full rounded-[1.25rem] border border-white/10 bg-background/50 px-4 py-3 text-sm text-foreground outline-none transition focus:border-ring focus:ring-[3px] focus:ring-ring/40" />
+            </div>
           </div>
 
-          {/* Difficulty */}
           <div className="space-y-2">
-            <Label>কঠিনতা</Label>
+            <Label>Pronunciation</Label>
+            <Input value={pronunciation} onChange={(event) => setPronunciation(event.target.value)} className="border-white/10 bg-background/50" />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Synonyms</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={newSynonym}
+                  onChange={(event) => setNewSynonym(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addSynonym();
+                    }
+                  }}
+                  placeholder="Add a synonym"
+                  className="border-white/10 bg-background/50"
+                />
+                <Button type="button" variant="outline" size="icon" onClick={addSynonym} className="rounded-2xl">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {synonyms.length > 0 ? (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {synonyms.map((synonym, index) => (
+                    <Badge key={`${synonym}-${index}`} variant="outline" className="flex items-center gap-1 border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
+                      {synonym}
+                      <button type="button" onClick={() => setSynonyms(synonyms.filter((_, itemIndex) => itemIndex !== index))}>
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Antonyms</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={newAntonym}
+                  onChange={(event) => setNewAntonym(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addAntonym();
+                    }
+                  }}
+                  placeholder="Add an antonym"
+                  className="border-white/10 bg-background/50"
+                />
+                <Button type="button" variant="outline" size="icon" onClick={addAntonym} className="rounded-2xl">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {antonyms.length > 0 ? (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {antonyms.map((antonym, index) => (
+                    <Badge key={`${antonym}-${index}`} variant="outline" className="flex items-center gap-1 border-rose-400/20 bg-rose-400/10 text-rose-300">
+                      {antonym}
+                      <button type="button" onClick={() => setAntonyms(antonyms.filter((_, itemIndex) => itemIndex !== index))}>
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Difficulty</Label>
             <div className="flex gap-2">
-              {['easy', 'medium', 'hard'].map((d) => (
+              {(["easy", "medium", "hard"] as const).map((value) => (
                 <Badge
-                  key={d}
+                  key={value}
                   variant="outline"
                   className={`cursor-pointer ${
-                    difficulty === d
-                      ? d === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400'
-                        : d === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400'
-                        : 'bg-yellow-500/20 border-yellow-500 text-yellow-400'
-                      : 'border-white/10'
+                    difficulty === value
+                      ? value === "easy"
+                        ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+                        : value === "hard"
+                          ? "border-rose-400/20 bg-rose-400/10 text-rose-300"
+                          : "border-amber-400/20 bg-amber-400/10 text-amber-300"
+                      : "border-white/10 text-muted-foreground"
                   }`}
-                  onClick={() => setDifficulty(d)}
+                  onClick={() => setDifficulty(value)}
                 >
-                  {d === 'easy' ? 'সহজ' : d === 'hard' ? 'কঠিন' : 'মাঝারি'}
+                  {value}
                 </Badge>
               ))}
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-between pt-4">
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleting || loading}
-              className="bg-red-500/20 hover:bg-red-500/30 text-red-400"
-            >
-              {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Trash2 className="w-4 h-4 mr-1" />}
-              মুছুন
+          <div className="rounded-[1.5rem] border border-rose-400/15 bg-rose-400/5 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">Delete this word</p>
+                <p className="mt-1 text-sm text-muted-foreground">This removes the word from the library. Use carefully.</p>
+              </div>
+              {!showDeleteConfirm ? (
+                <Button type="button" variant="outline" onClick={() => setShowDeleteConfirm(true)} className="rounded-2xl border-rose-400/25 bg-rose-400/10 text-rose-300 hover:bg-rose-400/15">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Reveal delete action
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => setShowDeleteConfirm(false)} className="rounded-2xl">
+                    Cancel
+                  </Button>
+                  <Button type="button" variant="destructive" onClick={handleDelete} disabled={deleting || loading} className="rounded-2xl">
+                    {deleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                    Delete word
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="outline" onClick={() => setOpen(false)} className="rounded-2xl">
+              Close
             </Button>
-            <Button
-              onClick={handleSave}
-              disabled={loading || deleting}
-              className="bg-gradient-to-r from-indigo-500 to-purple-600"
-            >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
-              সংরক্ষণ
+            <Button onClick={handleSave} disabled={loading || deleting} className="rounded-2xl">
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Save changes
             </Button>
           </div>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
